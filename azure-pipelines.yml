@@ -29,7 +29,14 @@ steps:
       echo %%f | findstr /i "\.py$" >nul && (
         echo Python file detected: %%f
         python --version
-        python %%f || echo Failed to run Python file: %%f
+        REM Attempt to run the Python script and capture output/error
+        python %%f > output.log 2>&1
+        IF %ERRORLEVEL% NEQ 0 (
+          echo Failed to run Python file: %%f
+          type output.log
+        ) ELSE (
+          echo Successfully executed Python file: %%f
+        )
       )
 
       REM Check for Java files
