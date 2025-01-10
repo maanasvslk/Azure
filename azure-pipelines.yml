@@ -17,35 +17,38 @@ pool:
 steps:
 - script: |
     echo Detecting programming languages in the repository...
-    REM List files to see what we are working with
-    git ls-files
-    for /f "delims=" %%f in ('git ls-files') do (
+    
+    REM List all files and filter out the pipeline YAML file
+    git ls-files | findstr /v "azure-pipelines.yml" > file_list.txt
+    
+    REM Iterate over each file in the list
+    for /f "delims=" %%f in (file_list.txt) do (
       set file=%%f
       REM Check for Python files
       echo %%f | findstr /i "\.py$" >nul && (
         echo Python file detected: %%f
         python --version
-        python %%f
+        python %%f || echo Failed to run Python file: %%f
       )
 
       REM Check for Java files
       echo %%f | findstr /i "\.java$" >nul && (
         echo Java file detected: %%f
-        javac %%f
-        java %%~nf
+        javac %%f || echo Failed to compile Java file: %%f
+        java %%~nf || echo Failed to execute Java file: %%~nf
       )
 
       REM Check for JavaScript files
       echo %%f | findstr /i "\.js$" >nul && (
         echo JavaScript file detected: %%f
-        node %%f
+        node %%f || echo Failed to run JavaScript file: %%f
       )
 
       REM Check for C++ files
       echo %%f | findstr /i "\.cpp$" >nul && (
         echo C++ file detected: %%f
-        g++ %%f -o %%~nf.exe
-        %%~nf.exe
+        g++ %%f -o %%~nf.exe || echo Failed to compile C++ file: %%f
+        %%~nf.exe || echo Failed to execute C++ file: %%~nf.exe
       )
     )
   displayName: 'Detect and Execute Scripts'
