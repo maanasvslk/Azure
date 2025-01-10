@@ -1,10 +1,13 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
-- main
+  branches:
+    include:
+    - main
+  paths:
+    include:
+    - '**/*.py'     
+    - '**/*.java'   
+    - '**/*.js'     
+    - '**/*.cpp'   
 
 pool:
   name: 'Default'
@@ -13,13 +16,51 @@ pool:
 
 steps:
 - script: |
-    echo Setting up Python environment...
-    python --version  
-    pip install --upgrade pip  
-  displayName: 'Set up Python environment'
+    echo "Detecting programming languages in the repository..."
+    # List all files in the repository
+    files=$(git ls-files)
+    
+    
+    if echo "$files" | grep -q "\.py$"; then
+      echo "Python files detected. Setting up Python environment..."
+      python --version
+      pip install --upgrade pip
+      echo "Running Python scripts..."
+      for file in $(echo "$files" | grep "\.py$"); do
+        echo "Executing $file"
+        python $file
+      done
+    fi
 
-- script: |
-    echo Running Python script...
-    python Python_File.py  
-  displayName: 'Run Python script'
 
+    if echo "$files" | grep -q "\.java$"; then
+      echo "Java files detected. Compiling and running Java files..."
+      javac *.java
+      for file in $(ls *.class); do
+        echo "Executing ${file%.class}"
+        java ${file%.class}
+      done
+    fi
+
+
+    if echo "$files" | grep -q "\.js$"; then
+      echo "JavaScript files detected. Running Node.js scripts..."
+      node --version
+      for file in $(echo "$files" | grep "\.js$"); do
+        echo "Executing $file"
+        node $file
+      done
+    fi
+
+   
+    if echo "$files" | grep -q "\.cpp$"; then
+      echo "C++ files detected. Compiling and running C++ files..."
+      for file in $(echo "$files" | grep "\.cpp$"); do
+        executable="${file%.cpp}.out"
+        echo "Compiling $file to $executable"
+        g++ $file -o $executable
+        echo "Executing $executable"
+        ./$executable
+      done
+    fi
+  displayName: 'Detect and Execute Scripts'
