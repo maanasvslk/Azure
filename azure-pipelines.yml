@@ -67,5 +67,4 @@ steps:
         %%~nf.exe || echo Failed to execute C++ file: %%~nf.exe
       )
     )
-
   displayName: 'Detect and Execute Scripts'
