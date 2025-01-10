@@ -7,16 +7,20 @@ trigger:
 - main
 
 pool:
-  name: 'Default'  
+  name: 'Default'
   demands:
-    - agent.name -equals MAANAS  
-
+    - agent.name -equals MAANAS   
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+- script: |
+    echo Setting up Python environment...
+    python --version  # Check Python version
+    pip install --upgrade pip  # Upgrade pip
+    # pip install -r requirements.txt  # Install dependencies from requirements.txt (if you have one)
+  displayName: 'Set up Python environment'
 
 - script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+    echo Running Python script...
+    python Python_File.py  
+  displayName: 'Run Python script'
+
