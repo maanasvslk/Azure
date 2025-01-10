@@ -20,9 +20,10 @@ steps:
     
     REM List all files and filter out the pipeline YAML file
     git ls-files | findstr /v "azure-pipelines.yml" > file_list.txt
-    
-    REM Iterate over each file in the list
-    for /f "delims=" %%f in (file_list.txt) do (
+
+    REM Check if file_list.txt is empty
+    for /f %%f in (file_list.txt) do (
+      echo Processing file: %%f
       set file=%%f
       REM Check for Python files
       echo %%f | findstr /i "\.py$" >nul && (
@@ -51,4 +52,10 @@ steps:
         %%~nf.exe || echo Failed to execute C++ file: %%~nf.exe
       )
     )
+
+    REM Check if file_list.txt is empty
+    if not exist file_list.txt (
+      echo No files to process.
+    )
+    
   displayName: 'Detect and Execute Scripts'
