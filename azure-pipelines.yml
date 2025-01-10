@@ -17,6 +17,8 @@ pool:
 steps:
 - script: |
     echo Detecting programming languages in the repository...
+    REM List files to see what we are working with
+    git ls-files
     for /f "delims=" %%f in ('git ls-files') do (
       set file=%%f
       REM Check for Python files
