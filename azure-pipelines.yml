@@ -47,7 +47,6 @@ steps:
     REM Iterate over the files in file_list.txt
     for /f %%f in (file_list.txt) do (
       echo Processing file: %%f
-      
       REM Check for Python files
       echo %%f | findstr /i "\.py$" >nul && (
         echo Python file detected: %%f
@@ -71,7 +70,7 @@ steps:
         javac %%f > javac_output.log 2>&1
         IF !ERRORLEVEL! NEQ 0 (
           echo Failed to compile Java file: %%f
-          echo Output log:
+          echo Compilation log:
           type javac_output.log
           exit /b 1
         )
@@ -79,7 +78,7 @@ steps:
         java %%~nf > java_output.log 2>&1
         IF !ERRORLEVEL! NEQ 0 (
           echo Failed to execute Java file: %%~nf
-          echo Output log:
+          echo Execution log:
           type java_output.log
           exit /b 1
         ) ELSE (
