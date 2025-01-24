@@ -6,6 +6,7 @@ trigger:
     include:
     - '**/*.py'
     - '**/*.java'
+    - '**/*.html'
 
 pool:
   name: 'Default'
@@ -15,12 +16,12 @@ pool:
 steps:
 - script: |
     echo Detecting programming languages and HTML files in the repository...
-    
+
     REM List all files and filter out the pipeline YAML file
     git ls-files | findstr /v "azure-pipelines.yml" > file_list.txt
     echo File list generated:
     type file_list.txt
-    
+
     REM Check if file_list.txt is empty
     if not exist file_list.txt (
       echo No files to process.
@@ -63,6 +64,8 @@ steps:
           exit /b 1
         ) ELSE (
           echo Successfully executed Python file: %%f
+          echo Output of Python file:
+          type output.log
           echo Success: Python file executed: %%f >> process_log.txt
         )
       )
@@ -78,13 +81,16 @@ steps:
           exit /b 1
         )
         REM Run the compiled Java file (using file name without extension)
-        java %%~nf
+        echo Running Java file: %%~nf
+        java %%~nf > output.log 2>&1
         IF !ERRORLEVEL! NEQ 0 (
           echo Failed to execute Java file: %%~nf
           echo Error code: !ERRORLEVEL! >> process_log.txt
           exit /b 1
         ) ELSE (
           echo Successfully executed Java file: %%~nf
+          echo Output of Java file:
+          type output.log
           echo Success: Java file executed: %%~nf >> process_log.txt
         )
       )
@@ -92,7 +98,10 @@ steps:
       REM Check for HTML files (optional)
       echo %%f | findstr /i "\.html$" >nul && (
         echo HTML file detected: %%f
-        REM You can add HTML-specific validation here, if needed
+        REM HTML file cannot be opened in the browser from the pipeline directly, 
+        REM but you can print a message about opening it locally
+        echo To view the HTML file, open it in your browser: %%f
+        REM Optionally, you can validate the HTML content or run tests here
         echo Successfully processed HTML file: %%f >> process_log.txt
       )
     )
