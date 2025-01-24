@@ -25,10 +25,12 @@ steps:
       exit /b
     )
 
+    REM Enable delayed variable expansion
+    setlocal enabledelayedexpansion
+
     REM Iterate over the files in file_list.txt
     for /f %%f in (file_list.txt) do (
       echo Processing file: %%f
-      set file=%%f
       REM Check for Python files
       echo %%f | findstr /i "\.py$" >nul && (
         echo Python file detected: %%f
@@ -36,7 +38,7 @@ steps:
         REM Attempt to run the Python script and capture output/error
         echo Running Python script: %%f
         python %%f > output.log 2>&1
-        IF %ERRORLEVEL% NEQ 0 (
+        IF !ERRORLEVEL! NEQ 0 (
           echo Failed to run Python file: %%f
           echo Output log: 
           type output.log
