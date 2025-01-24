@@ -19,6 +19,8 @@ steps:
 
     REM List all files and filter out the pipeline YAML file
     git ls-files | findstr /v "azure-pipelines.yml" > file_list.txt
+    echo File list generated:
+    type file_list.txt
 
     REM Check if file_list.txt is empty
     if not exist file_list.txt (
@@ -66,15 +68,19 @@ steps:
       echo %%f | findstr /i "\.java$" >nul && (
         echo Java file detected: %%f
         REM Compile Java file
-        javac %%f
+        javac %%f > javac_output.log 2>&1
         IF !ERRORLEVEL! NEQ 0 (
           echo Failed to compile Java file: %%f
+          echo Output log:
+          type javac_output.log
           exit /b 1
         )
         REM Run the compiled Java file (using file name without extension)
-        java %%~nf
+        java %%~nf > java_output.log 2>&1
         IF !ERRORLEVEL! NEQ 0 (
           echo Failed to execute Java file: %%~nf
+          echo Output log:
+          type java_output.log
           exit /b 1
         ) ELSE (
           echo Successfully executed Java file: %%~nf
