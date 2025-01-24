@@ -23,18 +23,20 @@ jobs:
       
   steps:
 
+
   - script: |
       echo "Executing Python script..."
-      python Python_File.py  # Run the Python script
+      python Python_File.py 
     displayName: 'Run Python Script'
 
   - script: |
-      echo "Compiling and Executing Java program..."
-      javac Java_File.java  # Compile Java file
-      java Java_File  # Run Java file (without .class extension)
+      echo "Compiling Java program..."
+      javac Java_File.java  
+      echo "Executing Java program..."
+      java Java_File  # Run Java program (Class name with no .class extension)
     displayName: 'Run Java Program'
 
   - script: |
       echo "Opening HTML file..."
-      start index.html  # Open HTML file in browser
+      start index.html  # Open HTML file in browser; use 'xdg-open' for Linux
     displayName: 'Open HTML File'
