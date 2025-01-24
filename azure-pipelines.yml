@@ -16,7 +16,6 @@ pool:
 steps:
 - script: |
     echo Detecting programming languages and HTML files in the repository...
-
     REM List all files and filter out the pipeline YAML file
     git ls-files | findstr /v "azure-pipelines.yml" > file_list.txt
     echo File list generated:
@@ -55,7 +54,7 @@ steps:
         echo Python file detected: %%f
         REM Attempt to run the Python script and capture output/error
         echo Running Python script: %%f
-        python %%f >> output.log 2>&1
+        python %%f > output.log 2>&1
         IF !ERRORLEVEL! NEQ 0 (
           echo Failed to run Python file: %%f
           echo Output log:
@@ -80,7 +79,7 @@ steps:
         )
         REM Run the compiled Java file (using file name without extension)
         echo Running Java file: %%~nf
-        java %%~nf >> output.log 2>&1
+        java %%~nf > output.log 2>&1
         IF !ERRORLEVEL! NEQ 0 (
           echo Failed to execute Java file: %%~nf
           exit /b 1
