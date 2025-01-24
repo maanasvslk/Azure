@@ -6,6 +6,7 @@ trigger:
     include:
     - '**/*.py'
     - '**/*.java'
+    - '**/*.html'
 
 pool:
   name: 'Default'
@@ -14,34 +15,48 @@ pool:
 
 steps:
 - script: |
-    echo Detecting programming languages in the repository...
-    
+    echo Detecting programming languages and HTML files in the repository...
+
     REM List all files and filter out the pipeline YAML file
     git ls-files | findstr /v "azure-pipelines.yml" > file_list.txt
 
     REM Check if file_list.txt is empty
     if not exist file_list.txt (
       echo No files to process.
-      exit /b
+      exit /b 0
     )
 
     REM Enable delayed variable expansion
     setlocal enabledelayedexpansion
 
+    REM Check if Java and Python are available
+    echo Checking Java and Python versions...
+    java -version
+    IF !ERRORLEVEL! NEQ 0 (
+      echo Java is not installed or not found in the PATH.
+      exit /b 1
+    )
+    python --version
+    IF !ERRORLEVEL! NEQ 0 (
+      echo Python is not installed or not found in the PATH.
+      exit /b 1
+    )
+
     REM Iterate over the files in file_list.txt
     for /f %%f in (file_list.txt) do (
       echo Processing file: %%f
+      
       REM Check for Python files
       echo %%f | findstr /i "\.py$" >nul && (
         echo Python file detected: %%f
-        python --version
         REM Attempt to run the Python script and capture output/error
         echo Running Python script: %%f
         python %%f > output.log 2>&1
         IF !ERRORLEVEL! NEQ 0 (
           echo Failed to run Python file: %%f
-          echo Output log: 
+          echo Output log:
           type output.log
+          exit /b 1
         ) ELSE (
           echo Successfully executed Python file: %%f
         )
@@ -50,8 +65,31 @@ steps:
       REM Check for Java files
       echo %%f | findstr /i "\.java$" >nul && (
         echo Java file detected: %%f
-        javac %%f || echo Failed to compile Java file: %%f
-        java %%~nf || echo Failed to execute Java file: %%~nf
+        REM Compile Java file
+        javac %%f
+        IF !ERRORLEVEL! NEQ 0 (
+          echo Failed to compile Java file: %%f
+          exit /b 1
+        )
+        REM Run the compiled Java file (using file name without extension)
+        java %%~nf
+        IF !ERRORLEVEL! NEQ 0 (
+          echo Failed to execute Java file: %%~nf
+          exit /b 1
+        ) ELSE (
+          echo Successfully executed Java file: %%~nf
+        )
+      )
+
+      REM Check for HTML files
+      echo %%f | findstr /i "\.html$" >nul && (
+        echo HTML file detected: %%f
+        REM HTML files are typically static and don't need execution, but let's serve them or check them.
+        REM For example, you can use a local server to serve HTML if needed:
+        echo Serving HTML file: %%f
+        REM (You may want to use a tool like python's `http.server` to serve HTML in a real case)
+        start python -m http.server 8000
+        echo HTML file served on http://localhost:8000/%%f
       )
     )
-  displayName: 'Detect and Execute Python and Java Scripts'
+  displayName: 'Detect and Execute Python, Java, and HTML Files'
