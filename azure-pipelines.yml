@@ -46,15 +46,13 @@ steps:
 
     REM Iterate over the files in file_list.txt
     for /f %%f in (file_list.txt) do (
+      REM Log the file being processed (this avoids duplicating)
       echo Processing file: %%f
-      REM Log the file type being processed
-      echo Processing file: %%f >> process_log.txt
 
       REM Check for Python files
       echo %%f | findstr /i "\.py$" >nul && (
-        echo Python file detected: %%f
-        REM Attempt to run the Python script and capture output/error
-        echo Running Python script: %%f
+        REM Run the Python file and capture output to output.log
+        echo Running Python file: %%f
         python %%f > output.log 2>&1
         IF !ERRORLEVEL! NEQ 0 (
           echo Failed to run Python file: %%f
@@ -65,44 +63,40 @@ steps:
           echo Successfully executed Python file: %%f
           echo Output of Python file:
           type output.log
-          echo Success: Python file executed: %%f >> process_log.txt
         )
       )
 
       REM Check for Java files
       echo %%f | findstr /i "\.java$" >nul && (
-        echo Java file detected: %%f
-        REM Compile Java file
-        javac %%f
+        REM Compile the Java file and capture output to output.log
+        echo Compiling Java file: %%f
+        javac %%f > output.log 2>&1
         IF !ERRORLEVEL! NEQ 0 (
           echo Failed to compile Java file: %%f
+          echo Output log:
+          type output.log
           exit /b 1
         )
-        REM Run the compiled Java file (using file name without extension)
+        REM Run the compiled Java file and capture output
         echo Running Java file: %%~nf
-        java %%~nf > output.log 2>&1
+        java %%~nf >> output.log 2>&1
         IF !ERRORLEVEL! NEQ 0 (
           echo Failed to execute Java file: %%~nf
+          echo Output log:
+          type output.log
           exit /b 1
         ) ELSE (
           echo Successfully executed Java file: %%~nf
           echo Output of Java file:
           type output.log
-          echo Success: Java file executed: %%~nf >> process_log.txt
         )
       )
 
-      REM Check for HTML files (optional)
+      REM Check for HTML files
       echo %%f | findstr /i "\.html$" >nul && (
         echo HTML file detected: %%f
-        REM HTML file cannot be opened in the browser from the pipeline directly, 
-        REM but you can print a message about opening it locally
+        REM HTML files can't be executed in the pipeline, but we can print instructions
         echo To view the HTML file, open it in your browser: %%f
-        REM Optionally, you can validate the HTML content or run tests here
-        echo Successfully processed HTML file: %%f >> process_log.txt
       )
     )
-
-    REM Show contents of the process log for review
-    type process_log.txt
   displayName: 'Detect and Execute Python, Java, and HTML Files'
