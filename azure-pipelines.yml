@@ -16,7 +16,7 @@ pool:
 steps:
 - script: |
     echo Detecting programming languages and HTML files in the repository...
-    
+
     REM List all files and filter out the pipeline YAML file
     git ls-files | findstr /v "azure-pipelines.yml" > file_list.txt
     echo File list generated:
@@ -50,7 +50,8 @@ steps:
       echo Processing file: %%f
 
       REM Check for Python files
-      echo %%f | findstr /i "\.py$" >nul && (
+      echo %%f | findstr /i "\.py$" >nul
+      if !ERRORLEVEL! EQU 0 (
         REM Run the Python file and capture output to output.log
         echo Running Python file: %%f
         python %%f > output.log 2>&1
@@ -67,7 +68,8 @@ steps:
       )
 
       REM Check for Java files
-      echo %%f | findstr /i "\.java$" >nul && (
+      echo %%f | findstr /i "\.java$" >nul
+      if !ERRORLEVEL! EQU 0 (
         REM Compile the Java file and capture output to output.log
         echo Compiling Java file: %%f
         javac %%f > output.log 2>&1
@@ -93,7 +95,8 @@ steps:
       )
 
       REM Check for HTML files
-      echo %%f | findstr /i "\.html$" >nul && (
+      echo %%f | findstr /i "\.html$" >nul
+      if !ERRORLEVEL! EQU 0 (
         echo HTML file detected: %%f
         REM HTML files can't be executed in the pipeline, but we can print instructions
         echo To view the HTML file, open it in your browser: %%f
