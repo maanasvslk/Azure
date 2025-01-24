@@ -6,8 +6,6 @@ trigger:
     include:
     - '**/*.py'
     - '**/*.java'
-    - '**/*.js'
-    - '**/*.cpp'
 
 pool:
   name: 'Default'
@@ -27,10 +25,12 @@ steps:
       exit /b
     )
 
+    REM Enable delayed variable expansion
+    setlocal enabledelayedexpansion
+
     REM Iterate over the files in file_list.txt
     for /f %%f in (file_list.txt) do (
       echo Processing file: %%f
-      set file=%%f
       REM Check for Python files
       echo %%f | findstr /i "\.py$" >nul && (
         echo Python file detected: %%f
@@ -38,7 +38,7 @@ steps:
         REM Attempt to run the Python script and capture output/error
         echo Running Python script: %%f
         python %%f > output.log 2>&1
-        IF %ERRORLEVEL% NEQ 0 (
+        IF !ERRORLEVEL! NEQ 0 (
           echo Failed to run Python file: %%f
           echo Output log: 
           type output.log
@@ -53,18 +53,5 @@ steps:
         javac %%f || echo Failed to compile Java file: %%f
         java %%~nf || echo Failed to execute Java file: %%~nf
       )
-
-      REM Check for JavaScript files
-      echo %%f | findstr /i "\.js$" >nul && (
-        echo JavaScript file detected: %%f
-        node %%f || echo Failed to run JavaScript file: %%f
-      )
-
-      REM Check for C++ files
-      echo %%f | findstr /i "\.cpp$" >nul && (
-        echo C++ file detected: %%f
-        g++ %%f -o %%~nf.exe || echo Failed to compile C++ file: %%f
-        %%~nf.exe || echo Failed to execute C++ file: %%~nf.exe
-      )
     )
-  displayName: 'Detect and Execute Scripts'
+  displayName: 'Detect and Execute Python and Java Scripts'
