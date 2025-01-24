@@ -84,12 +84,8 @@ steps:
       REM Check for HTML files
       echo %%f | findstr /i "\.html$" >nul && (
         echo HTML file detected: %%f
-        REM HTML files are typically static and don't need execution, but let's serve them or check them.
-        REM For example, you can use a local server to serve HTML if needed:
-        echo Serving HTML file: %%f
-        REM (You may want to use a tool like python's `http.server` to serve HTML in a real case)
-        start python -m http.server 8000
-        echo HTML file served on http://localhost:8000/%%f
+        REM HTML files are typically static and don't need execution, just log it.
+        echo HTML file processed: %%f
       )
     )
   displayName: 'Detect and Execute Python, Java, and HTML Files'
