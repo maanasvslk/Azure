@@ -6,7 +6,6 @@ trigger:
     include:
     - '**/*.py'
     - '**/*.java'
-    - '**/*.html'
 
 pool:
   name: 'Default'
@@ -47,7 +46,9 @@ steps:
     REM Iterate over the files in file_list.txt
     for /f %%f in (file_list.txt) do (
       echo Processing file: %%f
-      
+      REM Log the file type being processed
+      echo Processing file: %%f >> process_log.txt
+
       REM Check for Python files
       echo %%f | findstr /i "\.py$" >nul && (
         echo Python file detected: %%f
@@ -58,9 +59,11 @@ steps:
           echo Failed to run Python file: %%f
           echo Output log:
           type output.log
+          echo Error code: !ERRORLEVEL! >> process_log.txt
           exit /b 1
         ) ELSE (
           echo Successfully executed Python file: %%f
+          echo Success: Python file executed: %%f >> process_log.txt
         )
       )
 
@@ -71,15 +74,18 @@ steps:
         javac %%f
         IF !ERRORLEVEL! NEQ 0 (
           echo Failed to compile Java file: %%f
+          echo Error code: !ERRORLEVEL! >> process_log.txt
           exit /b 1
         )
         REM Run the compiled Java file (using file name without extension)
         java %%~nf
         IF !ERRORLEVEL! NEQ 0 (
           echo Failed to execute Java file: %%~nf
+          echo Error code: !ERRORLEVEL! >> process_log.txt
           exit /b 1
         ) ELSE (
           echo Successfully executed Java file: %%~nf
+          echo Success: Java file executed: %%~nf >> process_log.txt
         )
       )
 
@@ -87,7 +93,10 @@ steps:
       echo %%f | findstr /i "\.html$" >nul && (
         echo HTML file detected: %%f
         REM You can add HTML-specific validation here, if needed
-        echo Successfully processed HTML file: %%f
+        echo Successfully processed HTML file: %%f >> process_log.txt
       )
     )
+
+    REM Show contents of the process log for review
+    type process_log.txt
   displayName: 'Detect and Execute Python, Java, and HTML Files'
