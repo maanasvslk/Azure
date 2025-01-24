@@ -6,8 +6,6 @@ trigger:
     include:
     - '**/*.py'
     - '**/*.java'
-    - '**/*.js'
-    - '**/*.cpp'
 
 pool:
   name: 'Default'
@@ -53,18 +51,5 @@ steps:
         javac %%f || echo Failed to compile Java file: %%f
         java %%~nf || echo Failed to execute Java file: %%~nf
       )
-
-      REM Check for JavaScript files
-      echo %%f | findstr /i "\.js$" >nul && (
-        echo JavaScript file detected: %%f
-        node %%f || echo Failed to run JavaScript file: %%f
-      )
-
-      REM Check for C++ files
-      echo %%f | findstr /i "\.cpp$" >nul && (
-        echo C++ file detected: %%f
-        g++ %%f -o %%~nf.exe || echo Failed to compile C++ file: %%f
-        %%~nf.exe || echo Failed to execute C++ file: %%~nf.exe
-      )
     )
-  displayName: 'Detect and Execute Scripts'
+  displayName: 'Detect and Execute Python and Java Scripts'
