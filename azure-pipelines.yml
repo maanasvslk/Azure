@@ -1,27 +1,12 @@
-trigger:
-  branches:
-    include:
-    - main
-  paths:
-    include:
-    - '**/*.py'
-    - '**/*.java'
-    - '**/*.html'
-
-pool:
-  name: 'Default'
-  demands:
-    - agent.name -equals MAANAS
-
 steps:
 - script: |
     echo Detecting programming languages and HTML files in the repository...
-
+    
     REM List all files and filter out the pipeline YAML file
     git ls-files | findstr /v "azure-pipelines.yml" > file_list.txt
     echo File list generated:
     type file_list.txt
-
+    
     REM Check if file_list.txt is empty
     if not exist file_list.txt (
       echo No files to process.
@@ -47,6 +32,7 @@ steps:
     REM Iterate over the files in file_list.txt
     for /f %%f in (file_list.txt) do (
       echo Processing file: %%f
+      
       REM Check for Python files
       echo %%f | findstr /i "\.py$" >nul && (
         echo Python file detected: %%f
@@ -67,30 +53,26 @@ steps:
       echo %%f | findstr /i "\.java$" >nul && (
         echo Java file detected: %%f
         REM Compile Java file
-        javac %%f > javac_output.log 2>&1
+        javac %%f
         IF !ERRORLEVEL! NEQ 0 (
           echo Failed to compile Java file: %%f
-          echo Compilation log:
-          type javac_output.log
           exit /b 1
         )
         REM Run the compiled Java file (using file name without extension)
-        java %%~nf > java_output.log 2>&1
+        java %%~nf
         IF !ERRORLEVEL! NEQ 0 (
           echo Failed to execute Java file: %%~nf
-          echo Execution log:
-          type java_output.log
           exit /b 1
         ) ELSE (
           echo Successfully executed Java file: %%~nf
         )
       )
 
-      REM Check for HTML files
+      REM Check for HTML files (optional)
       echo %%f | findstr /i "\.html$" >nul && (
         echo HTML file detected: %%f
-        REM HTML files are typically static and don't need execution, just log it.
-        echo HTML file processed: %%f
+        REM You can add HTML-specific validation here, if needed
+        echo Successfully processed HTML file: %%f
       )
     )
   displayName: 'Detect and Execute Python, Java, and HTML Files'
