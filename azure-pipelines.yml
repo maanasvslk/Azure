@@ -1,105 +1,39 @@
 trigger:
   branches:
     include:
-    - main
+      - main
   paths:
     include:
-    - '**/*.py'
-    - '**/*.java'
-    - '**/*.html'
+      - '**/*.py'
+      - '**/*.java'
+      - '**/*.html'
 
 pool:
   name: 'Default'
   demands:
     - agent.name -equals MAANAS
 
-steps:
-- script: |
-    echo Detecting programming languages and HTML files in the repository...
+jobs:
+- job: ExecuteScripts
+  displayName: 'Execute Python and Java Scripts'
+  pool:
+    name: 'Default'
+    demands:
+      - agent.name -equals MAANAS
+      
+  steps:
+  - script: |
+      echo "Executing Python script..."
+      python path/to/your_script.py  # Update with your Python file path
+    displayName: 'Run Python Script'
 
-    REM List all files and filter out the pipeline YAML file
-    git ls-files | findstr /v "azure-pipelines.yml" > file_list.txt
-    echo File list generated:
-    type file_list.txt
+  - script: |
+      echo "Executing Java program..."
+      javac path/to/your_program.java  # Compile Java file
+      java -cp path/to your_program  # Run Java file (without .class)
+    displayName: 'Run Java Program'
 
-    REM Check if file_list.txt is empty
-    if not exist file_list.txt (
-      echo No files to process.
-      exit /b 0
-    )
-
-    REM Enable delayed variable expansion
-    setlocal enabledelayedexpansion
-
-    REM Check if Java and Python are available
-    echo Checking Java and Python versions...
-    java -version
-    IF !ERRORLEVEL! NEQ 0 (
-      echo Java is not installed or not found in the PATH.
-      exit /b 1
-    )
-    python --version
-    IF !ERRORLEVEL! NEQ 0 (
-      echo Python is not installed or not found in the PATH.
-      exit /b 1
-    )
-
-    REM Iterate over the files in file_list.txt
-    for /f %%f in (file_list.txt) do (
-      REM Log the file being processed (this avoids duplicating)
-      echo Processing file: %%f
-
-      REM Check for Python files
-      echo %%f | findstr /i "\.py$" >nul
-      if !ERRORLEVEL! EQU 0 (
-        REM Run the Python file and capture output to output.log
-        echo Running Python file: %%f
-        python %%f > output.log 2>&1
-        IF !ERRORLEVEL! NEQ 0 (
-          echo Failed to run Python file: %%f
-          echo Output log:
-          type output.log
-          exit /b 1
-        ) ELSE (
-          echo Successfully executed Python file: %%f
-          echo Output of Python file:
-          type output.log
-        )
-      )
-
-      REM Check for Java files
-      echo %%f | findstr /i "\.java$" >nul
-      if !ERRORLEVEL! EQU 0 (
-        REM Compile the Java file and capture output to output.log
-        echo Compiling Java file: %%f
-        javac %%f > output.log 2>&1
-        IF !ERRORLEVEL! NEQ 0 (
-          echo Failed to compile Java file: %%f
-          echo Output log:
-          type output.log
-          exit /b 1
-        )
-        REM Run the compiled Java file and capture output
-        echo Running Java file: %%~nf
-        java %%~nf >> output.log 2>&1
-        IF !ERRORLEVEL! NEQ 0 (
-          echo Failed to execute Java file: %%~nf
-          echo Output log:
-          type output.log
-          exit /b 1
-        ) ELSE (
-          echo Successfully executed Java file: %%~nf
-          echo Output of Java file:
-          type output.log
-        )
-      )
-
-      REM Check for HTML files
-      echo %%f | findstr /i "\.html$" >nul
-      if !ERRORLEVEL! EQU 0 (
-        echo HTML file detected: %%f
-        REM HTML files can't be executed in the pipeline, but we can print instructions
-        echo To view the HTML file, open it in your browser: %%f
-      )
-    )
-  displayName: 'Detect and Execute Python, Java, and HTML Files'
+  - script: |
+      echo "Opening HTML file..."
+      start path/to/your_file.html   # Opens HTML file; use 'xdg-open' for Linux or 'start' for Windows
+    displayName: 'Open HTML File'
