@@ -16,6 +16,7 @@ pool:
 steps:
 - script: |
     echo Detecting programming languages and HTML files in the repository...
+    
     REM List all files and filter out the pipeline YAML file
     git ls-files | findstr /v "azure-pipelines.yml" > file_list.txt
     echo File list generated:
