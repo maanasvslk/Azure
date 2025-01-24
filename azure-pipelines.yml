@@ -22,18 +22,19 @@ jobs:
       - agent.name -equals MAANAS
       
   steps:
+
   - script: |
       echo "Executing Python script..."
-      python path/to/your_script.py  # Update with your Python file path
+      python Python_File.py  # Run the Python script
     displayName: 'Run Python Script'
 
   - script: |
-      echo "Executing Java program..."
-      javac path/to/your_program.java  # Compile Java file
-      java -cp path/to your_program  # Run Java file (without .class)
+      echo "Compiling and Executing Java program..."
+      javac Java_File.java  # Compile Java file
+      java Java_File  # Run Java file (without .class extension)
     displayName: 'Run Java Program'
 
   - script: |
       echo "Opening HTML file..."
-      start path/to/your_file.html   # Opens HTML file; use 'xdg-open' for Linux or 'start' for Windows
+      start index.html  # Open HTML file in browser
     displayName: 'Open HTML File'
