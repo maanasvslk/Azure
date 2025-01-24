@@ -1,3 +1,18 @@
+trigger:
+  branches:
+    include:
+    - main
+  paths:
+    include:
+    - '**/*.py'
+    - '**/*.java'
+    - '**/*.html'
+
+pool:
+  name: 'Default'
+  demands:
+    - agent.name -equals MAANAS
+
 steps:
 - script: |
     echo Detecting programming languages and HTML files in the repository...
